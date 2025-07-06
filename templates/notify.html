@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>邮件告警配置</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 24px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 24px;
+    }
+    form.notify-form label {
+      display: block;
+      margin-top: 16px;
+      font-weight: 600;
+      color: #555;
+      font-size: 14px;
+    }
+    form.notify-form input {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+    form.notify-form input:focus {
+      border-color: #007BFF;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+    form.notify-form button {
+      margin-top: 30px;
+      background-color: #007BFF;
+      color: white;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    form.notify-form button:hover {
+      background-color: #0056b3;
+    }
+    a.back-link {
+      display: block;
+      margin-top: 24px;
+      text-align: center;
+      text-decoration: none;
+      color: #007BFF;
+      font-weight: 600;
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+    a.back-link:hover {
+      text-decoration: underline;
+      color: #0056b3;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 10px;
+      }
+      .container {
+        padding: 24px 20px;
+        width: 100%;
+      }
+      h2 {
+        font-size: 20px;
+      }
+      form.notify-form button {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📧 邮件告警配置</h2>
+
+  <form method="post" class="notify-form">
+    <label for="smtp">SMTP服务器</label>
+    <input id="smtp" name="smtp" value="{{ cfg.smtp or '' }}" required>
+
+    <label for="port">端口</label>
+    <input id="port" name="port" value="{{ cfg.port or '' }}" required>
+
+    <label for="email_from">发件人邮箱</label>
+    <input id="email_from" name="email_from" value="{{ cfg.email_from or '' }}" required>
+
+    <label for="password">发件人密码（或授权码）</label>
+    <input id="password" name="password" type="password" value="{{ cfg.password or '' }}" required>
+
+    <label for="email_to">收件人默认邮箱</label>
+    <input id="email_to" name="email_to" value="{{ cfg.email_to or '' }}">
+
+    <button type="submit">💾 保存配置</button>
+  </form>
+
+  <a class="back-link" href="/">← 返回首页</a>
+</div>
+
+</body>
+</html>

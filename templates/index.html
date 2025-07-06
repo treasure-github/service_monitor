@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>监控服务</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 24px;
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+      width: 100%;
+      /* max-width: 1000px; */
+    }
+    form.add-form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 380px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    form.add-form label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+      color: #555;
+    }
+    form.add-form input,
+    form.add-form select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    form.add-form button {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+    form.add-form button:hover {
+      background-color: #0056b3;
+    }
+
+    ul.service-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    ul.service-list li {
+      background: white;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .service-info {
+      flex: 1;
+      word-break: break-all;
+    }
+    .service-actions form,
+    .service-actions a {
+      display: inline-block;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .service-actions button {
+      background-color: #dc3545;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .service-actions button:hover {
+      background-color: #a71d2a;
+    }
+    .service-actions a {
+      text-decoration: none;
+      padding: 6px 12px;
+      background-color: #28a745;
+      color: white;
+      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    .service-actions a:hover {
+      background-color: #1e7e34;
+    }
+
+    .email-link {
+      display: block;
+      margin-top: 30px;
+      color: #007BFF;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+      float: right;
+    }
+    .email-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 800px) {
+      .container {
+        flex-direction: column;
+      }
+      form.add-form {
+        width: 100%;
+      }
+      ul.service-list {
+        max-height: none;
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h2>📡 监控服务</h2>
+
+<div class="container">
+  <form method="post" action="/add" class="add-form">
+    <label>名称:</label>
+    <input name="name" required />
+
+    <label>检查类型:</label>
+    <select name="check_type">
+      <option value="http">HTTP</option>
+      <option value="https">HTTPS</option>
+      <option value="tcp">TCP</option>
+    </select>
+
+    <label>请求方式:</label>
+    <select name="method">
+      <option value="GET">GET</option>
+      <option value="POST">POST</option>
+    </select>
+
+    <label>地址:</label>
+    <input name="target" required />
+
+    <label>关键字(选):</label>
+    <input name="keyword" />
+
+    <label>告警邮箱(逗号隔开):</label>
+    <input name="alert_emails" />
+
+    <label>最大失败次数:</label>
+    <input name="max_failures" value="3" type="number" min="1" />
+
+    <button type="submit">➕ 添加监控服务</button>
+    <div style="width: 100%;">
+      <a href="/notify" class="email-link">📧 邮件服务配置</a>
+    </div>
+
+  </form>
+
+  <ul class="service-list">
+    {% for s in services %}
+      <li style="{% if not s.enabled %}opacity: 0.6;{% endif %}">
+        <div class="service-info">
+          <strong>{{ s.name }}</strong> — {{ s.check_type | upper }} — {{ s.target }}
+            <form method="post" action="/toggle/{{ s.id }}" style="display:inline;">
+              <button type="submit" style="background-color: #ffc107; color: black;">
+                {% if s.enabled %}⏸️ 暂停{% else %}▶️ 启用{% endif %}
+              </button>
+            </form>
+        </div>
+        <div class="service-actions">
+          <a href="/alerts/{{ s.id }}">查看告警历史</a>
+          <a href="/edit/{{ s.id }}">✏️ 修改</a>
+          <form method="post" action="{{ url_for('delete_service', service_id=s.id) }}" onsubmit="return confirm('确认要删除服务【{{ s.name }}】及其所有告警记录？');">
+            <button type="submit">🗑️ 删除</button>
+          </form>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+</body>
+</html>
