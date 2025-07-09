@@ -5,8 +5,29 @@ from datetime import datetime
 import csv
 from io import StringIO, BytesIO
 from flask import flash
+import sys
+import os
+import logging
 
-app = Flask(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("app.log",  encoding="utf-8"),
+        logging.StreamHandler()
+    ]
+)
+
+
+def resource_path(relative_path):
+    """兼容 PyInstaller 打包路径"""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.abspath(relative_path)
+
+template_dir = resource_path('templates')
+app = Flask(__name__, template_folder=template_dir)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///monitor.db'
 app.config['SECRET_KEY'] = 'secret'
 db.init_app(app)
@@ -16,6 +37,7 @@ def index():
     services = Service.query.all()
     return render_template('index.html', services=services)
 
+ 
 @app.route('/add', methods=['POST'])
 def add_service():
     s = Service(

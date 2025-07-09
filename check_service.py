@@ -1,11 +1,11 @@
 import requests, socket
-
+import logging
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
 }
 def check_service(service):
     try:
-        print("正在检查接口："+service.name)
+        logging.info("正在检查接口："+service.name)
         method = service.method.upper() if service.method else 'GET'
 
         if service.check_type in ['http', 'https']:
