@@ -39,7 +39,9 @@ def job_check_all_services():
             if not notify_config:
                 logging.info("❌ 未配置通知邮箱（NotifyConfig），跳过发送告警邮件。")
                 return
-
+            
+            now = get_bj_now().replace(tzinfo=None)
+            
             for s in services:
                 if not s.enabled:
                     continue  # 跳过未启用的服务
@@ -54,19 +56,18 @@ def job_check_all_services():
                 if ok:
                     if s.alerted:
                         if send_to_email:
-                            send_email(
+                            success = send_email(
                                 f"\u2705 恢复: {s.name}",
                                 f"{s.target} 已恢复",
                                 notify_config,
                                 recipients=send_to_email
                             )
-                        db.session.add(AlertLog(service_id=s.id, status='recovery', message=f"{s.target} 恢复", recipients=','.join(send_to_email)))
+                        db.session.add(AlertLog(service_id=s.id, status='recovery', message=f"{s.target} 恢复", recipients=','.join(send_to_email),timestamp=now))
                         s.alerted = False
                     s.fail_count = 0
                     s.last_alert_time = None
                 else:
                     s.fail_count += 1
-                    now = get_bj_now().replace(tzinfo=None)
                     should_alert = False
 
                     if s.fail_count >= s.max_failures:
@@ -76,7 +77,7 @@ def job_check_all_services():
                             should_alert = True
 
                     if should_alert and send_to_email:
-                            send_email(
+                            success = send_email(
                                 f"❌ 异常: {s.name}",
                                 f"{s.target} 连续失败 {s.fail_count} 次: {msg}",
                                 notify_config,
@@ -84,7 +85,12 @@ def job_check_all_services():
                             )
                             s.alerted = True
                             s.last_alert_time = now
-                            db.session.add(AlertLog(service_id=s.id, status='alert', message=f"{s.target} 异常: {msg}",recipients=','.join(send_to_email)))
+                            message = f"{s.target} 异常: {msg}"
+
+                            if not success:
+                                message += " 发送邮件失败"
+                            print("------------"+message)
+                            db.session.add(AlertLog(service_id=s.id, status='alert', message=message,recipients=','.join(send_to_email),timestamp=now))
             
             db.session.commit()
 
@@ -103,7 +109,7 @@ def start(app):
     scheduler.add_job(
                     job_check_all_services,
                     'interval', 
-                    seconds=5,    #1分钟执行一次 minutes  seconds
+                    minutes=2,    #2分钟执行一次 minutes  seconds
                     coalesce=True,  #有多个调度堆积（比如挂起或异常后恢复），只执行一次补偿
                     max_instances=1 #限制同一任务同一时间只能有一个实例 
                     ) 
