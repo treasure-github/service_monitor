@@ -91,8 +91,8 @@
 
         <label>请求方式:</label>
         <select name="method">
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
+            <option value="GET" {% if s.method=='GET' %}selected{% endif %}>GET</option>
+            <option value="POST" {% if s.method=='POST' %}selected{% endif %} >POST</option>
         </select>
 
         <label>地址:</label>
