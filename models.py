@@ -32,5 +32,5 @@ class AlertLog(db.Model):
     service_id = db.Column(db.Integer, db.ForeignKey('service.id'))
     status = db.Column(db.String(10))  # alert/recovery
     message = db.Column(db.String(500))
-    timestamp = db.Column(db.DateTime, default=get_bj_now())
+    timestamp = db.Column(db.DateTime)
     recipients = db.Column(db.String(300))
