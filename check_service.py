@@ -14,12 +14,12 @@ def check_service(service):
                 r = requests.post(service.target,headers=headers, timeout=6)
             else:
                 r = requests.get(service.target,headers=headers, timeout=6)
-
+            print(r.text)
             if r.status_code == 200:
+                print(service.keyword)
                 if service.keyword and service.keyword not in r.text:
                     return False, "关键字不匹配"
                 return True, "HTTP 正常"
-            # print( r.text)
             return False, f"HTTP 状态码: {r.status_code}"
         elif service.check_type == 'tcp':
             ip, port = service.target.split(':')

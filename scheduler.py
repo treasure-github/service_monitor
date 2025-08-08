@@ -12,6 +12,7 @@ from util import get_bj_now
 
 _lock = Lock()
 _app = None  # 全局记录 app
+runInterval = 2 # N 分钟执行一次
 alert_interval_minutes = 10  # 间隔 N 分钟发送邮件告警
 scheduler = BackgroundScheduler()
 
@@ -89,7 +90,6 @@ def job_check_all_services():
 
                             if not success:
                                 message += " 发送邮件失败"
-                            print("------------"+message)
                             db.session.add(AlertLog(service_id=s.id, status='alert', message=message,recipients=','.join(send_to_email),timestamp=now))
             
             db.session.commit()
@@ -109,7 +109,7 @@ def start(app):
     scheduler.add_job(
                     job_check_all_services,
                     'interval', 
-                    minutes=2,    #2分钟执行一次 minutes  seconds
+                    minutes=runInterval, #执行周期 minutes  seconds   
                     coalesce=True,  #有多个调度堆积（比如挂起或异常后恢复），只执行一次补偿
                     max_instances=1 #限制同一任务同一时间只能有一个实例 
                     ) 
