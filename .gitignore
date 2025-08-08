@@ -8,3 +8,6 @@ __pycache__/scheduler.cpython-39.pyc
 __pycache__/util.cpython-39.pyc
 app.log
 nohup.out
+dist
+build
+packge.txt
